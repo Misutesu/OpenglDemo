@@ -7,12 +7,14 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.wujiaquan.demo.opengldemo.renderer.CubeGLRenderer;
+import com.wujiaquan.demo.opengldemo.renderer.RectangleGLRenderer;
+import com.wujiaquan.demo.opengldemo.renderer.Shelf2GLRenderer;
 import com.wujiaquan.demo.opengldemo.renderer.ShelfGLRenderer;
 import com.wujiaquan.demo.opengldemo.renderer.TriangleGLRenderer;
 
 public class MainActivity extends AppCompatActivity {
 
-    private MyGLSurfaceView mGLSurfaceView;
+    private MyGlSurfaceView2 mGLSurfaceView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,10 +23,16 @@ public class MainActivity extends AppCompatActivity {
         Log.d("TAG", "check OpenGL 2.0 support : " + OpenGLUtils.checkSupport(this));
 
         if (OpenGLUtils.checkSupport(this)) {
-            mGLSurfaceView = new MyGLSurfaceView(this);
+//            mGLSurfaceView = new MyGLSurfaceView(this);
+            mGLSurfaceView = new MyGlSurfaceView2(this);
 
+            mGLSurfaceView.setEGLContextClientVersion(2);
+
+//            mGLSurfaceView.setRenderer(new TriangleGLRenderer());
+//            mGLSurfaceView.setRenderer(new RectangleGLRenderer(this));
+            mGLSurfaceView.setRenderer(new Shelf2GLRenderer(this));
 //            mGLSurfaceView.setRenderer(new CubeGLRenderer());
-            mGLSurfaceView.setRenderer(new ShelfGLRenderer());
+//            mGLSurfaceView.setRenderer(new ShelfGLRenderer());
 
             setContentView(mGLSurfaceView);
         } else {

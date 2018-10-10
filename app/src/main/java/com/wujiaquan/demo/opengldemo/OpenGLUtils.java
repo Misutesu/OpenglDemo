@@ -3,9 +3,15 @@ package com.wujiaquan.demo.opengldemo;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
+import android.opengl.GLUtils;
+import android.util.Log;
 
 public class OpenGLUtils {
+
+    private static final String TAG = "OpenGLUtils";
 
     /**
      * 检测设备是否支持OpenGl2.0
@@ -88,6 +94,7 @@ public class OpenGLUtils {
 
     /**
      * 创建OpenGL
+     *
      * @param vertexShaderCode
      * @param fragmentShaderCode
      * @return
@@ -103,5 +110,50 @@ public class OpenGLUtils {
             return 0;
         }
         return program;
+    }
+
+    /**
+     * 返回加载图像后的 OpenGl 纹理的 ID
+     *
+     * @param context
+     * @param resId
+     * @return
+     */
+    public static int loadTexture(Context context, int resId) {
+        final int[] textureObjectIds = new int[1];
+        GLES20.glGenTextures(1, textureObjectIds, 0);
+        if (textureObjectIds[0] == 0) {
+            Log.d(TAG, "Could not generate a new OpenGL texture object.");
+            return 0;
+        }
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+        final Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resId, options);
+        if (bitmap == null) {
+            Log.d(TAG, "resource Id could not be decoded");
+            GLES20.glDeleteTextures(1, textureObjectIds, 0);
+            return 0;
+        }
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureObjectIds[0]);
+
+        // 设置缩小的情况下过滤方式
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_LINEAR);
+        // 设置放大的情况下过滤方式
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+
+        // 加载纹理到 OpenGL，读入 Bitmap 定义的位图数据，并把它复制到当前绑定的纹理对象
+        // 当前绑定的纹理对象就会被附加上纹理图像。
+        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+
+        bitmap.recycle();
+
+        // 为当前绑定的纹理自动生成所有需要的多级渐远纹理
+        // 生成 MIP 贴图
+        GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
+
+        // 解除与纹理的绑定，避免用其他的纹理方法意外地改变这个纹理
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+
+        return textureObjectIds[0];
     }
 }

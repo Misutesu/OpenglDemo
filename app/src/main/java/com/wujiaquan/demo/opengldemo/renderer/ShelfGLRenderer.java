@@ -1,5 +1,7 @@
 package com.wujiaquan.demo.opengldemo.renderer;
 
+import android.opengl.GLES20;
+
 import com.wujiaquan.demo.opengldemo.bean.Shelf;
 import com.wujiaquan.demo.opengldemo.renderer.base.BaseRenderer;
 
