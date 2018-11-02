@@ -3,6 +3,7 @@ package com.wujiaquan.demo.opengldemo.renderer.base;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -26,7 +27,12 @@ public abstract class BaseRenderer2 implements GLSurfaceView.Renderer {
     protected final float[] mViewMatrix = new float[16];
     protected final float[] mProjectMatrix = new float[16];
     protected final float[] mMVPMatrix = new float[16];
-    protected final float[] mTranslateMatrix = new float[16];
+    protected final float[] mModelMatrix = new float[16];
+
+    //本次旋转矩阵
+    private final float[] mNowRotateMatrix = new float[16];
+    //上次旋转矩阵
+    private final float[] mLastRotateMatrix = new float[16];
 
     protected Context mContext;
 
@@ -43,6 +49,8 @@ public abstract class BaseRenderer2 implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+
+        Matrix.setIdentityM(mLastRotateMatrix, 0);
     }
 
     @Override
@@ -65,12 +73,24 @@ public abstract class BaseRenderer2 implements GLSurfaceView.Renderer {
         return floatBuffer;
     }
 
+    //合并模型矩阵和旋转矩阵
+    protected void rotateMatrix(float[] modelMatrix) {
+        Matrix.setIdentityM(mNowRotateMatrix, 0);
+        Matrix.rotateM(mNowRotateMatrix, 0, mAngleX, 0.0f, 1.0f, 0.0f);
+        Matrix.rotateM(mNowRotateMatrix, 0, mAngleY, 1.0f, 0.0f, 0.0f);
+
+        mAngleX = mAngleY = 0.0f;
+
+        Matrix.multiplyMM(mLastRotateMatrix, 0, mNowRotateMatrix, 0, mLastRotateMatrix, 0);
+        Matrix.multiplyMM(modelMatrix, 0, mLastRotateMatrix, 0, modelMatrix, 0);
+    }
+
     public void rotate(float distanceX, float distanceY) {
         if (Math.abs(distanceX) > INVALID_MOVE_DISTANCE) {
-            mAngleX += distanceX < 0 ? ROTATE_SPEED : -ROTATE_SPEED;
+            mAngleX = distanceX < 0 ? ROTATE_SPEED : -ROTATE_SPEED;
         }
         if (Math.abs(distanceY) > INVALID_MOVE_DISTANCE) {
-            mAngleY += distanceY < 0 ? ROTATE_SPEED : -ROTATE_SPEED;
+            mAngleY = distanceY < 0 ? ROTATE_SPEED : -ROTATE_SPEED;
         }
     }
 

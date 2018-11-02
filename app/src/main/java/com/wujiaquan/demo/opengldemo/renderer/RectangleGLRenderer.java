@@ -37,74 +37,44 @@ public class RectangleGLRenderer extends BaseRenderer2 {
                     + "gl_FragColor = texture2D(u_TextureUnit,v_TextureCoordinates);\n"
                     + "}";
 
+    private final int POS_SIZE = 3;
+    private final int UV_SIZE = 2;
+    private final int DATA_BYTES = (POS_SIZE + UV_SIZE) * 4;
+
     private final float[] VERTEX = {
             //front
-            -1f, 1f, 1f,
-            -1f, -1f, 1f,
-            1f, 1f, 1f,
-            1f, -1f, 1f,
+            -1f, 1f, 1f, 0.0f, 0.0f,
+            -1f, -1f, 1f, 0.0f, 1.0f,
+            1f, 1f, 1f, 1.0f, 0.0f,
+            1f, -1f, 1f, 1.0f, 1.0f,
             //back
-            -1f, 1f, -1f,
-            -1f, -1f, -1f,
-            1f, 1f, -1f,
-            1f, -1f, -1f,
+            -1f, 1f, -1f, 0.0f, 0.0f,
+            -1f, -1f, -1f, 0.0f, 1.0f,
+            1f, 1f, -1f, 1.0f, 0.0f,
+            1f, -1f, -1f, 1.0f, 1.0f,
             //left
-            -1f, 1f, -1f,
-            -1f, -1f, -1f,
-            -1f, 1f, 1f,
-            -1f, -1f, 1f,
+            -1f, 1f, -1f, 0.0f, 0.0f,
+            -1f, -1f, -1f, 0.0f, 1.0f,
+            -1f, 1f, 1f, 1.0f, 0.0f,
+            -1f, -1f, 1f, 1.0f, 1.0f,
             //right
-            1f, 1f, 1f,
-            1f, -1f, 1f,
-            1f, 1f, -1f,
-            1f, -1f, -1f,
+            1f, 1f, 1f, 0.0f, 0.0f,
+            1f, -1f, 1f, 0.0f, 1.0f,
+            1f, 1f, -1f, 1.0f, 0.0f,
+            1f, -1f, -1f, 1.0f, 1.0f,
             //top
-            -1f, 1f, -1f,
-            -1f, 1f, 1f,
-            1f, 1f, -1f,
-            1f, 1f, 1f,
+            -1f, 1f, -1f, 0.0f, 0.0f,
+            -1f, 1f, 1f, 0.0f, 1.0f,
+            1f, 1f, -1f, 1.0f, 0.0f,
+            1f, 1f, 1f, 1.0f, 1.0f,
             //bottom
-            -1f, -1f, 1f,
-            -1f, -1f, -1f,
-            1f, -1f, 1f,
-            1f, -1f, -1f,
-    };
-
-    private final float[] TEXTURE = {
-            //front
-            0.0f, 0.0f, 0f,
-            0.0f, 1.0f, 0f,
-            1.0f, 0.0f, 0f,
-            1.0f, 1.0f, 0f,
-            //back
-            0.0f, 0.0f, 0f,
-            0.0f, 1.0f, 0f,
-            1.0f, 0.0f, 0f,
-            1.0f, 1.0f, 0f,
-            //left
-            0.0f, 0.0f, 0f,
-            0.0f, 1.0f, 0f,
-            1.0f, 0.0f, 0f,
-            1.0f, 1.0f, 0f,
-            //right
-            0.0f, 0.0f, 0f,
-            0.0f, 1.0f, 0f,
-            1.0f, 0.0f, 0f,
-            1.0f, 1.0f, 0f,
-            //top
-            0.0f, 0.0f, 0f,
-            0.0f, 1.0f, 0f,
-            1.0f, 0.0f, 0f,
-            1.0f, 1.0f, 0f,
-            //bottom
-            0.0f, 0.0f, 0f,
-            0.0f, 1.0f, 0f,
-            1.0f, 0.0f, 0f,
-            1.0f, 1.0f, 0f,
+            -1f, -1f, 1f, 0.0f, 0.0f,
+            -1f, -1f, -1f, 0.0f, 1.0f,
+            1f, -1f, 1f, 1.0f, 0.0f,
+            1f, -1f, -1f, 1.0f, 1.0f,
     };
 
     private FloatBuffer mVertexArray;
-    private FloatBuffer mTextureArray;
 
     private int[] mTextureIds = new int[2];
 
@@ -117,7 +87,6 @@ public class RectangleGLRenderer extends BaseRenderer2 {
     public RectangleGLRenderer(Context context) {
         super(context);
         mVertexArray = getFloatBuffer(VERTEX);
-        mTextureArray = getFloatBuffer(TEXTURE);
     }
 
     @Override
@@ -158,14 +127,19 @@ public class RectangleGLRenderer extends BaseRenderer2 {
 
         Matrix.setLookAtM(mViewMatrix, 0, 0.0f, 0.0f, 5.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
-        Matrix.setIdentityM(mTranslateMatrix, 0);
-        //rotate
-        Matrix.rotateM(mTranslateMatrix, 0, mAngleX, 0.0f, 1.0f, 0.0f);
-        Matrix.rotateM(mTranslateMatrix, 0, mAngleY, 1.0f, 0.0f, 0.0f);
-        //scale
-//        Matrix.scaleM(mTranslateMatrix, 0, mScaleSize, mScaleSize, mScaleSize);
+        //重置模型(变换)矩阵
+        Matrix.setIdentityM(mModelMatrix, 0);
+        //translate
+        Matrix.translateM(mModelMatrix, 0, 0.0f, 0.0f, 0.0f);
 
-        Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, mTranslateMatrix, 0);
+        //scale
+        Matrix.scaleM(mModelMatrix, 0, 1.0f, 1.0f, 1.0f);
+//        Matrix.scaleM(mModelMatrix, 0, mScaleSize, mScaleSize, mScaleSize);
+
+        //rotate
+        rotateMatrix(mModelMatrix);
+
+        Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, mModelMatrix, 0);
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mMVPMatrix, 0);
 
         GLES20.glUniformMatrix4fv(uMatrix, 1, false, mMVPMatrix, 0);
@@ -173,11 +147,14 @@ public class RectangleGLRenderer extends BaseRenderer2 {
         //color
 //        GLES20.glUniform4f(uColor, 1.0f, 1.0f, 1.0f, 1.0f);
 
-        GLES20.glVertexAttribPointer(aPosition, 3, GLES20.GL_FLOAT, false, 0, mVertexArray);
+        GLES20.glVertexAttribPointer(aPosition, POS_SIZE, GLES20.GL_FLOAT, false, DATA_BYTES, mVertexArray);
         GLES20.glEnableVertexAttribArray(aPosition);
+        mVertexArray.position(0);
 
-        GLES20.glVertexAttribPointer(aTextureCoordinates, 3, GLES20.GL_FLOAT, false, 0, mTextureArray);
+        mVertexArray.position(POS_SIZE);
+        GLES20.glVertexAttribPointer(aTextureCoordinates, UV_SIZE, GLES20.GL_FLOAT, false, DATA_BYTES, mVertexArray);
         GLES20.glEnableVertexAttribArray(aTextureCoordinates);
+        mVertexArray.position(0);
 
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureIds[0]);

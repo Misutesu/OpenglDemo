@@ -61,7 +61,6 @@ public class Shelf2GLRenderer extends BaseRenderer2 {
 
         TEXTURE = new float[mShelf.getFloats().length];
         for (int i = 0; i < TEXTURE.length; i += 3 * 4) {
-            Log.d("TAG", "i = " + i);
             TEXTURE[i + 0] = 0f;
             TEXTURE[i + 1] = 0f;
             TEXTURE[i + 2] = 0f;
@@ -121,14 +120,13 @@ public class Shelf2GLRenderer extends BaseRenderer2 {
 
         Matrix.setLookAtM(mViewMatrix, 0, 0.0f, 0.0f, 5.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
 
-        Matrix.setIdentityM(mTranslateMatrix, 0);
-        //rotate
-        Matrix.rotateM(mTranslateMatrix, 0, mAngleX, 0.0f, 1.0f, 0.0f);
-        Matrix.rotateM(mTranslateMatrix, 0, mAngleY, 1.0f, 0.0f, 0.0f);
+        Matrix.setIdentityM(mModelMatrix, 0);
         //scale
-//        Matrix.scaleM(mTranslateMatrix, 0, mScaleSize, mScaleSize, mScaleSize);
+//        Matrix.scaleM(mModelMatrix, 0, mScaleSize, mScaleSize, mScaleSize);
+        //rotate
+        rotateMatrix(mModelMatrix);
 
-        Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, mTranslateMatrix, 0);
+        Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, mModelMatrix, 0);
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectMatrix, 0, mMVPMatrix, 0);
 
         GLES20.glUniformMatrix4fv(uMatrix, 1, false, mMVPMatrix, 0);
@@ -142,9 +140,14 @@ public class Shelf2GLRenderer extends BaseRenderer2 {
         GLES20.glVertexAttribPointer(aTextureCoordinates, 3, GLES20.GL_FLOAT, false, 0, mTextureArray);
         GLES20.glEnableVertexAttribArray(aTextureCoordinates);
 
+        long time = System.currentTimeMillis();
+
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureIds[0]);
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, mShelf.getFloats().length / 3);
+
+        Log.d("TAG", "=============================================");
+        Log.d("TAG", "time : " + (System.currentTimeMillis() - time));
 
         GLES20.glDisableVertexAttribArray(aPosition);
         GLES20.glDisableVertexAttribArray(aTextureCoordinates);
