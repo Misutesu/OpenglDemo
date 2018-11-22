@@ -1,5 +1,7 @@
 package com.misutesu.project.version2.utils;
 
+import android.util.Log;
+
 import com.misutesu.project.version2.BuildConfig;
 
 import static android.opengl.GLES20.GL_COMPILE_STATUS;
@@ -13,7 +15,9 @@ import static android.opengl.GLES20.glCreateProgram;
 import static android.opengl.GLES20.glCreateShader;
 import static android.opengl.GLES20.glDeleteProgram;
 import static android.opengl.GLES20.glDeleteShader;
+import static android.opengl.GLES20.glGetProgramInfoLog;
 import static android.opengl.GLES20.glGetProgramiv;
+import static android.opengl.GLES20.glGetShaderInfoLog;
 import static android.opengl.GLES20.glGetShaderiv;
 import static android.opengl.GLES20.glLinkProgram;
 import static android.opengl.GLES20.glShaderSource;
@@ -33,7 +37,7 @@ public class ShaderHelper {
     private static int compileShader(int type, String shaderCode) {
         final int shaderObjectId = glCreateShader(type);
         if (shaderObjectId == 0) {
-            //Could not create new shader!
+            Log.d("TAG", "Could not create new shader!");
             return 0;
         }
         glShaderSource(shaderObjectId, shaderCode);
@@ -41,11 +45,11 @@ public class ShaderHelper {
 
         final int[] compileStatus = new int[1];
         glGetShaderiv(shaderObjectId, GL_COMPILE_STATUS, compileStatus, 0);
-        //"Results of compiling source:" + "\n" + shaderCode + "\n:" + glGetShaderInfoLog(shaderObjectId)
+        Log.d("TAG", "Results of compiling source:" + "\n" + shaderCode + "\n:" + glGetShaderInfoLog(shaderObjectId));
 
         if (compileStatus[0] == 0) {
             glDeleteShader(shaderObjectId);
-            //"Compilation of shader failed."
+            Log.d("TAG", "Compilation of shader failed.");
             return 0;
         }
         return shaderObjectId;
@@ -55,7 +59,7 @@ public class ShaderHelper {
         final int programObjectId = glCreateProgram();
 
         if (programObjectId == 0) {
-            //"Could not create new program"
+            Log.d("TAG", "Could not create new program");
             return 0;
         }
 
@@ -65,11 +69,11 @@ public class ShaderHelper {
         glLinkProgram(programObjectId); //链接程序
         final int[] linkStatus = new int[1];
         glGetProgramiv(programObjectId, GL_LINK_STATUS, linkStatus, 0);
-        //"results of linking program:\n" + glGetProgramInfoLog(programObjectId)
+        Log.d("TAG", "results of linking program:\n" + glGetProgramInfoLog(programObjectId));
 
         if (linkStatus[0] == 0) {
             glDeleteProgram(programObjectId);
-            //"linking of program failed!"
+            Log.d("TAG", "linking of program failed!");
             return 0;
         }
 
@@ -80,7 +84,7 @@ public class ShaderHelper {
         glValidateProgram(programObjectId);
         final int[] validateStatus = new int[1];
         glGetProgramiv(programObjectId, GL_VALIDATE_STATUS, validateStatus, 0);
-        //"Results of validating program:" + validateStatus[0] + "\nLog:" + glGetShaderInfoLog(programObjectId)
+        Log.d("TAG", "Results of validating program:" + validateStatus[0] + "\nLog:" + glGetShaderInfoLog(programObjectId));
         return validateStatus[0] != 0;
     }
 

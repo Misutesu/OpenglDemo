@@ -1,4 +1,4 @@
-package com.misutesu.project.version2.bean;
+package com.misutesu.project.version2.bean.color;
 
 import com.misutesu.project.version2.bean.base.GLMaterial;
 
@@ -71,12 +71,24 @@ public class GLColor extends GLMaterial {
         this.b = b;
     }
 
+    public float getAf() {
+        return a * 1.0f / MAX_VALUE;
+    }
+
+    public float getRf() {
+        return r * 1.0f / MAX_VALUE;
+    }
+
+    public float getGf() {
+        return g * 1.0f / MAX_VALUE;
+    }
+
+    public float getBf() {
+        return b * 1.0f / MAX_VALUE;
+    }
+
     public boolean isSame(GLColor color) {
-        if (a != color.getA()) return false;
-        if (r != color.getR()) return false;
-        if (g != color.getG()) return false;
-        if (b != color.getB()) return false;
-        return true;
+        return isSame(color.a, color.r, color.g, color.b);
     }
 
     public boolean isSame(int r, int g, int b) {

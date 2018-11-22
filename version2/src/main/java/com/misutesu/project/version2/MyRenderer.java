@@ -1,11 +1,16 @@
 package com.misutesu.project.version2;
 
 import android.content.Context;
-import android.opengl.Matrix;
+import android.graphics.BitmapFactory;
 
 import com.misutesu.project.version2.base.BaseRenderer;
-import com.misutesu.project.version2.utils.MatrixHelper;
+import com.misutesu.project.version2.bean.GLResult;
+import com.misutesu.project.version2.bean.shape.GLCircle;
+import com.misutesu.project.version2.bean.shape.GLCube;
+import com.misutesu.project.version2.bean.shape.GLRectangle;
+import com.misutesu.project.version2.bean.shape.base.GLFace;
 
+import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 
@@ -16,25 +21,41 @@ public class MyRenderer extends BaseRenderer {
     }
 
     @Override
-    public void onSurfaceChanged(GL10 gl, int width, int height) {
-        super.onSurfaceChanged(gl, width, height);
-        MatrixHelper.perspectiveM(mProjectionMatrix, 45, mRatio, 1f, 100f);
-        //创建视图矩阵
-        Matrix.setLookAtM(mViewMatrix, 0, 0f, 0f, 5.0f, 0f, 0f, 0f, 0f, 1f, 0f);
+    protected float[] setBackgroundColor() {
+        return new float[]{0.2f, 0.2f, 0.2f};
     }
 
     @Override
-    public void onDrawFrame(GL10 gl) {
-        super.onDrawFrame(gl);
+    protected float[] setLightLocation() {
+        return new float[]{0.0f, 0.0f, 5.0f};
+    }
 
-        //重置模型(变换)矩阵
-        Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.scaleM(mModelMatrix, 0, mScaleSize, mScaleSize, mScaleSize);
-        rotateMatrix(mModelMatrix);
-        translateMatrix(mModelMatrix);
+    @Override
+    protected float[] setLightColor() {
+        return new float[]{0.6f, 0.6f, 0.6f};
+    }
 
-        Matrix.multiplyMM(mModelViewProjectionMatrix, 0, mViewProjectionMatrix, 0, mModelMatrix, 0);
-        Matrix.multiplyMM(mViewProjectionMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
-        Matrix.invertM(mInvertedViewProjectionMatrix, 0, mViewProjectionMatrix, 0);
+    @Override
+    protected float[] setBrightness() {
+        return new float[]{0.8f, 0.8f, 0.8f};
+    }
+
+    @Override
+    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        super.onSurfaceCreated(gl, config);
+
+//        mGLResult.addShape(255, 255, 255, GLRectangle.create(0.0f, 0.0f, 0.0f, 2.0f, 2.0f, GLFace.DIRECTION_Y_POSITIVE));
+//        mGLResult.addShape(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.texture)
+//                , GLRectangle.create(0.0f, 0.0f, 0.0f, 2.0f, 2.0f, GLFace.DIRECTION_Y_NEGATIVE, true));
+
+//        mGLResult.addShape(255, 255, 255, GLCircle.create(0.0f, 0.0f, 0.0f, 0.2f, 36, GLFace.DIRECTION_Y_POSITIVE));
+//        mGLResult.addShape(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.texture)
+//                , GLCircle.create(0.0f, 0.0f, 0.0f, 0.2f, 36, GLFace.DIRECTION_Y_NEGATIVE, true));
+
+        mGLResult.addShape(255, 255, 255, GLCube.create(-0.5f, 0.0f, 0.0f, 0.4f, 0.6f, 0.8f));
+        mGLResult.addShape(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.texture)
+                , GLCube.create(0.5f, 0.0f, 0.0f, 0.4f, 0.6f, 0.8f, true));
+
+        mGLResult.create();
     }
 }

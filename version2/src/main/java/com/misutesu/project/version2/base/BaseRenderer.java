@@ -6,7 +6,11 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 
 import com.misutesu.project.version2.R;
+import com.misutesu.project.version2.bean.GLResult;
+import com.misutesu.project.version2.program.ColorProgram;
+import com.misutesu.project.version2.program.TextureProgram;
 import com.misutesu.project.version2.utils.Geometry;
+import com.misutesu.project.version2.utils.MatrixHelper;
 import com.misutesu.project.version2.utils.ShaderHelper;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -19,7 +23,7 @@ public abstract class BaseRenderer implements GLSurfaceView.Renderer {
     //旋转速度
     private final int ROTATE_SPEED = 6;
     //X轴旋转角度范围
-    private final int[] ROTATE_X_RANGE = {0, 90};
+    private final int[] ROTATE_X_RANGE = {0, 360};
 
     //最小缩放倍数
     private final float MIN_SCALE = 0.8f;
@@ -67,25 +71,28 @@ public abstract class BaseRenderer implements GLSurfaceView.Renderer {
     protected final float[] mProjectionMatrix = new float[16];
     protected final float[] mModelMatrix = new float[16];
 
-    protected int mColorProgram;
-    protected int mTextureProgram;
+    protected ColorProgram mColorProgram;
+    protected TextureProgram mTextureProgram;
 
-    public BaseRenderer(Context mContext) {
-        this.mContext = mContext;
+    protected GLResult mGLResult = new GLResult();
+
+    public BaseRenderer(Context context) {
+        mContext = context;
 
         Matrix.setIdentityM(mLastRotateMatrix, 0);
         Matrix.setIdentityM(mLastTranslateMatrix, 0);
-
-        mColorProgram = ShaderHelper.linkProgram(R.raw.color_vertex_shader, R.raw.color_fragment_shader);
-        mTextureProgram = ShaderHelper.linkProgram(R.raw.textrue_vertex_shader, R.raw.texture_fragment_shader);
     }
 
-    protected int[] setBackgroundColor() {
-        return new int[]{0, 0, 0};
+    protected float[] setBackgroundColor() {
+        return new float[]{0.0f, 0.0f, 0.0f};
     }
 
     protected float[] setBrightness() {
         return new float[]{0.8f, 0.8f, 0.8f};
+    }
+
+    protected float[] setLightLocation() {
+        return new float[]{0.0f, 0.0f, 5.0f};
     }
 
     protected float[] setLightColor() {
@@ -94,11 +101,11 @@ public abstract class BaseRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        int[] color = setBackgroundColor();
+        float[] color = setBackgroundColor();
         if (color.length != 3) {
-            color[0] = color[1] = color[2] = 0;
+            color[0] = color[1] = color[2] = 0.0f;
         }
-        GLES20.glClearColor(color[0] * 1.0f / 255, color[1] * 1.0f / 255, color[2] * 1.0f / 255, 1.0f);
+        GLES20.glClearColor(color[0], color[1], color[2], 1.0f);
 
         //开启抗锯齿
         GLES20.glEnable(GL10.GL_MULTISAMPLE);
@@ -114,18 +121,37 @@ public abstract class BaseRenderer implements GLSurfaceView.Renderer {
         GLES20.glClearDepthf(1.0f);
         //设置深度缓存比较函数，GL_LEQUAL表示新的像素的深度缓存值小于等于当前像素的深度缓存值（通过gl.glClearDepthf(1.0f)设置）时通过深度测试
         GLES20.glDepthFunc(GLES20.GL_LEQUAL);
+
+        mColorProgram = new ColorProgram(mContext);
+        mTextureProgram = new TextureProgram(mContext);
     }
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         GLES20.glViewport(0, 0, width, height);
         mRatio = (float) width / height;
+
+        MatrixHelper.perspectiveM(mProjectionMatrix, 45, mRatio, 1f, 100f);
+        //创建视图矩阵
+        Matrix.setLookAtM(mViewMatrix, 0, 0f, 0f, 5.0f, 0f, 0f, 0f, 0f, 1f, 0f);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
         //清除屏幕和深度缓存
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+
+        //重置模型(变换)矩阵
+        Matrix.setIdentityM(mModelMatrix, 0);
+        Matrix.scaleM(mModelMatrix, 0, mScaleSize, mScaleSize, mScaleSize);
+        rotateMatrix(mModelMatrix);
+        translateMatrix(mModelMatrix);
+
+        Matrix.multiplyMM(mModelViewProjectionMatrix, 0, mViewProjectionMatrix, 0, mModelMatrix, 0);
+        Matrix.multiplyMM(mViewProjectionMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+        Matrix.invertM(mInvertedViewProjectionMatrix, 0, mViewProjectionMatrix, 0);
+
+        mGLResult.draw(mModelViewProjectionMatrix, mModelMatrix, setLightLocation(), setLightColor(), setBrightness(), mColorProgram, mTextureProgram);
     }
 
     //合并模型矩阵和旋转矩阵
