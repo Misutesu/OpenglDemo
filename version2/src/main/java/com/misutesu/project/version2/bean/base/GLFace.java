@@ -1,6 +1,4 @@
-package com.misutesu.project.version2.bean.shape.base;
-
-import com.misutesu.project.version2.bean.base.GLShape;
+package com.misutesu.project.version2.bean.base;
 
 public abstract class GLFace extends GLShape {
 

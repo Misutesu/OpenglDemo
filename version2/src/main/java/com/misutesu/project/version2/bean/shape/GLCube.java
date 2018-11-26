@@ -1,7 +1,7 @@
 package com.misutesu.project.version2.bean.shape;
 
 import com.misutesu.project.version2.bean.base.GLShape;
-import com.misutesu.project.version2.bean.shape.base.GLFace;
+import com.misutesu.project.version2.bean.base.GLFace;
 
 public class GLCube extends GLShape {
     public static GLCube create(float centerX, float centerY, float centerZ, float width, float length, float height) {

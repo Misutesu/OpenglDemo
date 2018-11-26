@@ -12,11 +12,16 @@ import com.misutesu.project.version2.program.TextureProgram;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class GLResult {
     private Map<GLMaterial, GLShape> result = new HashMap<>();
 
-    public void addShape(int r, int g, int b, GLShape shape) {
+    public String addShape(int r, int g, int b, GLShape shape) {
+        return addShape(UUID.randomUUID().toString(), r, g, b, shape);
+    }
+
+    public String addShape(String tag, int r, int g, int b, GLShape shape) {
         boolean hasAdd = false;
         for (Map.Entry<GLMaterial, GLShape> entry : result.entrySet()) {
             GLMaterial glMaterial = entry.getKey();
@@ -31,11 +36,18 @@ public class GLResult {
             }
         }
         if (!hasAdd) {
-            result.put(new GLColor(r, g, b), shape);
+            GLColor color = new GLColor(r, g, b);
+            color.setTag(tag);
+            result.put(color, shape);
         }
+        return tag;
     }
 
-    public void addShape(Bitmap bitmap, GLShape shape) {
+    public String addShape(Bitmap bitmap, GLShape shape) {
+        return addShape(UUID.randomUUID().toString(), bitmap, shape);
+    }
+
+    public String addShape(String tag, Bitmap bitmap, GLShape shape) {
         boolean hasAdd = false;
         for (Map.Entry<GLMaterial, GLShape> entry : result.entrySet()) {
             GLMaterial glMaterial = entry.getKey();
@@ -49,8 +61,11 @@ public class GLResult {
             }
         }
         if (!hasAdd) {
-            result.put(new GLTexture(bitmap), shape);
+            GLTexture texture = new GLTexture(bitmap);
+            texture.setTag(tag);
+            result.put(texture, shape);
         }
+        return tag;
     }
 
     public void addShape(GLMaterial material, GLShape shape) {

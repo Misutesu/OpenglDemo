@@ -1,6 +1,6 @@
 package com.misutesu.project.version2.bean.shape;
 
-import com.misutesu.project.version2.bean.shape.base.GLFace;
+import com.misutesu.project.version2.bean.base.GLFace;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -282,7 +282,7 @@ public class GLRectangle extends GLFace {
                 break;
         }
 
-        glRectangle.addVertextList(list);
+        glRectangle.addVertexList(list);
         return glRectangle;
     }
 }

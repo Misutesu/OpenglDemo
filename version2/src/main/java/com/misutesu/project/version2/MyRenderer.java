@@ -4,11 +4,7 @@ import android.content.Context;
 import android.graphics.BitmapFactory;
 
 import com.misutesu.project.version2.base.BaseRenderer;
-import com.misutesu.project.version2.bean.GLResult;
-import com.misutesu.project.version2.bean.shape.GLCircle;
 import com.misutesu.project.version2.bean.shape.GLCube;
-import com.misutesu.project.version2.bean.shape.GLRectangle;
-import com.misutesu.project.version2.bean.shape.base.GLFace;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;

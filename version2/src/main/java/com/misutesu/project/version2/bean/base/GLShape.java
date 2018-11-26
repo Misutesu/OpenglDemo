@@ -13,7 +13,7 @@ public abstract class GLShape {
     private List<Float> mVertexList = new ArrayList<>();
     private FloatBuffer mFloatBuffer;
 
-    public void addVertextList(List<Float> list) {
+    public void addVertexList(List<Float> list) {
         mVertexList.addAll(list);
     }
 

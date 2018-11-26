@@ -1,8 +1,6 @@
 package com.misutesu.project.version2.bean.shape;
 
-import android.util.Log;
-
-import com.misutesu.project.version2.bean.shape.base.GLFace;
+import com.misutesu.project.version2.bean.base.GLFace;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -228,7 +226,7 @@ public class GLCircle extends GLFace {
             }
         }
 
-        glCircle.addVertextList(list);
+        glCircle.addVertexList(list);
         return glCircle;
     }
 }
